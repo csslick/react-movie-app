@@ -5,6 +5,7 @@ function App() {
   // state
   const [movie, setmovie] = useState([])
   const [searchQuery, setSearchQuery] = useState('star wars')
+  const [loading, setLoading] = useState(false)
 
   // fetch movie - 함수는 마운트 될때 실행됨
   const api_key = '224502cedb2aea2828098f3724fd0b0c';
@@ -16,11 +17,15 @@ function App() {
   const trandUrl = `https://api.themoviedb.org/3/trending/all/day?api_key=${api_key}`
 
   const fetchMovie = () => {
+    // set loading false
+    setLoading(true)
+
     fetch(searchUrl)
       .then(res => res.json())
       .then(data => {
-        console.log(data.results)
         setmovie(data.results)
+        setLoading(false)
+        console.log(data.results)
       })
       .catch(err => console.log(err))
   }
@@ -43,25 +48,40 @@ function App() {
     fetchMovie();
   }
 
-  return (
-    <>
-      <h1>movie</h1>
-      <h2>Movies</h2>
+  const showLoading = () =>  (loading ? <h2>Loading...</h2> : "")
+  const searchForm = () => {
+    return (
       <form onSubmit={handleSubmit}>
         <input type="text"  onChange={handleChange} />
         <button>Search</button>
       </form>
-      {
-        movie.map((item, i) => {
-          return(
-            <div key={i}>
-              <p>{i}. {item.original_title}</p>
-              <img src={imgUrl+item.poster_path} alt={item.poster_path} />
-              <p>{i}. {item.overview}</p>
-            </div>
-          )
-        })
-      }
+    )
+  }
+
+  const showNews = () => {
+    return (
+      movie.map((item, i) => {
+        return (
+          <div key={i}>
+            <p>{i}. {item.original_title}</p>
+            <img src={imgUrl+item.poster_path} alt={item.poster_path} />
+            <p>{i}. {item.overview}</p>
+          </div>
+        )
+      })
+    )
+  }
+
+  return (
+    /* 
+      여기까지 리액트 소스코드는 최적화 되었지만 브라우저에서 소스를 볼때 콘텐츠 파악 및 SEO가 어렵다. 
+      다음에선 next.js로 이 부분을 개선할 것이다.
+    */
+    <>
+      <h1>Movie Info</h1>
+      { showLoading() }
+      { searchForm() }
+      { showNews() }
     </>
   );
 }
